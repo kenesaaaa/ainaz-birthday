@@ -2,36 +2,43 @@
 <html lang="kk">
 <head>
 <meta charset="UTF-8">
-<title>Айназ 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Айназ үшін 💖</title>
 <style>
-    body{ margin:0; background:black; overflow:hidden; color:white; font-family:sans-serif; cursor: pointer; }
-    #text{ position:absolute; width:100%; top:40%; text-align:center; opacity:0; transition:2s; z-index:10; pointer-events: none;}
-    h1{font-size:6vw; text-shadow: 0 0 20px #f73487;}
-    p{font-size:3vw;}
-    .faded { opacity: 0.4 !important; transition: 2s; }
+    body { margin:0; background:black; overflow:hidden; color:white; font-family:sans-serif; cursor: pointer; }
+    #text { position:absolute; width:100%; top:40%; text-align:center; opacity:0; transition:2s; z-index:10; pointer-events: none;}
+    h1 { font-size:6vw; text-shadow: 0 0 20px #f73487; }
+    p { font-size:3vw; }
+    .faded { opacity: 0.4 !important; transition: 3s; }
     
+    /* Экранды басу туралы ескерту */
     #hint {
         position: fixed;
         bottom: 20px;
         width: 100%;
         text-align: center;
-        color: rgba(255,255,255,0.4);
-        font-size: 14px;
-        z-index: 20;
+        color: rgba(255,255,255,0.7);
+        background: rgba(247, 52, 135, 0.2);
+        padding: 10px 0;
+        font-size: 16px;
+        z-index: 100;
+        border-top: 1px solid #f73487;
+        letter-spacing: 1px;
     }
 </style>
 </head>
 <body>
 
+<div id="hint">Музыка қосылу үшін экранды басыңыз 🎵</div>
+
 <canvas id="c"></canvas>
+
 <div id="text">
     <h1 id="msg"></h1>
     <p id="date">22.04.2026 💖</p>
 </div>
 
-<div id="hint">Музыка қосылу үшін экранды бір рет басыңыз 🎵</div>
-
-<audio id="bgMusic" loop>
+<audio id="bgMusic" loop preload="auto">
     <source src="music.mp3" type="audio/mpeg">
 </audio>
 
@@ -41,22 +48,32 @@ const ctx = canvas.getContext("2d");
 const audio = document.getElementById("bgMusic");
 const hint = document.getElementById("hint");
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Музыканы іске қосу (Экранды басқанда)
+function startEverything() {
+    audio.play().then(() => {
+        hint.style.display = 'none';
+    }).catch(e => {
+        console.log("Дыбыс қосылмады:", e);
+        hint.innerText = "Қате: music.mp3 файлы табылмады ❌";
+    });
+}
+
+window.addEventListener('click', startEverything, { once: true });
+window.addEventListener('touchstart', startEverything, { once: true });
+
+function heart(t){
+    return { 
+        x: 16 * Math.pow(Math.sin(t), 3), 
+        y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) 
+    };
+}
 
 let stage = 0; 
 let particles = [];
 let progress = 0;
-
-// МУЗЫКАНЫ ҚОСУ: Экранды кез келген жерден басқанда ойнайды
-window.addEventListener('click', () => {
-    audio.play().catch(e => console.log("Музыка қосылмады:", e));
-    hint.style.display = 'none';
-}, { once: true });
-
-function heart(t){
-    return { x:16*Math.pow(Math.sin(t),3), y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)) };
-}
 
 for(let i=0; i<600; i++){
     let t = Math.random() * Math.PI * 2;
@@ -64,8 +81,9 @@ for(let i=0; i<600; i++){
     particles.push({
         tx: canvas.width/2 + h.x*15,
         ty: canvas.height/2 + h.y*15,
-        x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-        size: Math.random()*2+1,
+        x: Math.random() * canvas.width, 
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1,
         color: "#f73487"
     });
 }
@@ -103,16 +121,16 @@ function animate(){
     if(stage === 0) {
         ctx.fillStyle = "rgba(0,0,0,0.15)";
         ctx.fillRect(0,0, canvas.width, canvas.height);
-        particles.forEach(p=>{
-            p.x += (p.tx - p.x)*0.02;
-            p.y += (p.ty - p.y)*0.02;
+        particles.forEach(p => {
+            p.x += (p.tx - p.x) * 0.02;
+            p.y += (p.ty - p.y) * 0.02;
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fillStyle = p.color;
             ctx.fill();
         });
         progress++;
-        if(progress === 200){
+        if(progress === 180){
             document.getElementById("text").style.opacity = 1;
             typeText();
             setTimeout(() => { 
@@ -129,8 +147,8 @@ function animate(){
 animate();
 
 window.onresize = () => { 
-    canvas.width = innerWidth; 
-    canvas.height = innerHeight; 
+    canvas.width = window.innerWidth; 
+    canvas.height = window.innerHeight; 
 };
 </script>
 </body>
