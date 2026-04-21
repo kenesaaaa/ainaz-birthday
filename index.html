@@ -4,12 +4,21 @@
 <meta charset="UTF-8">
 <title>Айназ 💖</title>
 <style>
-    body{ margin:0; background:black; overflow:hidden; color:white; font-family:sans-serif; }
+    body{ margin:0; background:black; overflow:hidden; color:white; font-family:sans-serif; cursor: pointer; }
     #text{ position:absolute; width:100%; top:40%; text-align:center; opacity:0; transition:2s; z-index:10; pointer-events: none;}
-    h1{font-size:6vw;}
+    h1{font-size:6vw; text-shadow: 0 0 20px #f73487;}
     p{font-size:3vw;}
-    /* Екінші кезеңдегі мөлдір стиль */
     .faded { opacity: 0.4 !important; transition: 2s; }
+    
+    #hint {
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        color: rgba(255,255,255,0.4);
+        font-size: 14px;
+        z-index: 20;
+    }
 </style>
 </head>
 <body>
@@ -20,15 +29,30 @@
     <p id="date">22.04.2026 💖</p>
 </div>
 
+<div id="hint">Музыка қосылу үшін экранды бір рет басыңыз 🎵</div>
+
+<audio id="bgMusic" loop>
+    <source src="music.mp3" type="audio/mpeg">
+</audio>
+
 <script>
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
+const audio = document.getElementById("bgMusic");
+const hint = document.getElementById("hint");
+
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 let stage = 0; 
 let particles = [];
 let progress = 0;
+
+// МУЗЫКАНЫ ҚОСУ: Экранды кез келген жерден басқанда ойнайды
+window.addEventListener('click', () => {
+    audio.play().catch(e => console.log("Музыка қосылмады:", e));
+    hint.style.display = 'none';
+}, { once: true });
 
 function heart(t){
     return { x:16*Math.pow(Math.sin(t),3), y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)) };
@@ -63,7 +87,6 @@ function typeText(){
 function drawTurtleLines(){
     ctx.fillStyle = "rgba(0,0,0,0.05)";
     ctx.fillRect(0,0, canvas.width, canvas.height);
-    
     for(let j=0; j<5; j++){
         let t = Math.random() * Math.PI * 2;
         let h = heart(t);
@@ -80,7 +103,6 @@ function animate(){
     if(stage === 0) {
         ctx.fillStyle = "rgba(0,0,0,0.15)";
         ctx.fillRect(0,0, canvas.width, canvas.height);
-        
         particles.forEach(p=>{
             p.x += (p.tx - p.x)*0.02;
             p.y += (p.ty - p.y)*0.02;
@@ -89,15 +111,12 @@ function animate(){
             ctx.fillStyle = p.color;
             ctx.fill();
         });
-
         progress++;
         if(progress === 200){
             document.getElementById("text").style.opacity = 1;
             typeText();
-            // 3 секундтан кейін екінші кезеңге өту
             setTimeout(() => { 
                 stage = 1; 
-                // Жазуды өшірмейміз, тек мөлдір (transparent) қыламыз
                 document.getElementById("text").classList.add("faded");
             }, 3000);
         }
